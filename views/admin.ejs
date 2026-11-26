@@ -1,0 +1,24 @@
+<%- include('partials/head',{title:'관리자 대시보드'}) %>
+    <section class="content form-wrap">
+        <h1>관리자 대시보드</h1>
+        <form method="post" action="/admin/logout"><button class="small-btn">로그아웃</button></form>
+        <h2>공식 전시품 등록</h2>
+        <form class="form" action="/admin/items" method="post" enctype="multipart/form-data"><label>이름<input
+                    name="title" required></label><label>시대<select name="era">
+                    <% eras.forEach(e=>{ %><option value="<%= e.id %>">
+                            <%= e.label %>
+                        </option>
+                        <% }) %>
+                </select></label><label>사진<input type="file" name="image"
+                    accept="image/jpeg,image/png,image/webp"></label><label>설명<textarea name="description"
+                    required></textarea></label><button class="btn primary">공식 전시품 추가</button></form>
+        <h2>신고 누적 숨김 전시품</h2>
+        <% hidden.forEach(item=>{ %><form method="post" action="/admin/restore/<%= item.id %>" class="inline-form">
+                <span>
+                    <%= item.title %>
+                </span><button class="small-btn">복구</button></form>
+            <% }) %>
+                <% if(!hidden.length){ %>
+                    <p>숨김 처리된 전시품이 없습니다.</p>
+                    <% } %>
+    <h2>전체 전시품 및 게시글</h2><% allItems.forEach(i=>{ %><form class="inline-form" method="post" action="/admin/delete/item/<%= i.id %>"><span><%= i.title %></span><button class="small-btn">삭제</button></form><% }) %><h2>추억 찾기 게시글</h2><% wanted.forEach(i=>{ %><form class="inline-form" method="post" action="/admin/delete/wanted/<%= i.id %>"><span><%= i.title %></span><button class="small-btn">삭제</button></form><% }) %></section><%- include('partials/foot') %>

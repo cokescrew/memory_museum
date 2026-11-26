@@ -1,0 +1,5 @@
+.env
+node_modules/
+memory_museum.zip
+public/uploads/*
+!public/uploads/.gitkeep

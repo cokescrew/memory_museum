@@ -1,0 +1,2 @@
+require('dotenv').config(); const fs = require('fs'); const mysql = require('mysql2/promise'); (async () => { const db = await mysql.createConnection({ host: process.env.DB_HOST || 'localhost', port: Number(process.env.DB_PORT || 3306), user: process.env.DB_USER || 'root', password: process.env.DB_PASSWORD || '', multipleStatements: true }); await db.query(fs.readFileSync('sql/schema.sql', 'utf8')); await db.end(); console.log('DB initialized.'); })().catch(e => { console.error(e.message); process.exit(1) });
+
