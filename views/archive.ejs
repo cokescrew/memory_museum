@@ -1,1 +1,56 @@
-<%- include('partials/head',{title:'추억 저장소'}) %><section class="archive-intro"><div class="eyebrow">THE COLLECTION · 1960—2010</div><h1>추억 저장소</h1><p>오래된 물건을 통해 지난 시간을 다시 만나보세요.</p></section><section class="era-grid"><% eras.forEach(e=>{ %><a class="era-card" href="/archive/<%= e.id %>"><img src="<%= e.image %>" alt="<%= e.label %>"><span><%= e.label %><b>›</b></span></a><% }) %></section><%- include('partials/foot') %>
+<%- include('partials/head', { title: '추억 저장소' }) %>
+
+<section class="museum-gallery museum-entrance">
+
+    <div class="museum-gallery-header">
+        <span>추억 박물관</span>
+        <a href="#museum-guide">▧ 관람 안내도</a>
+    </div>
+
+    <div class="museum-gallery-photo">
+        <img src="/images/ent.png" alt="추억 박물관 입구">
+    </div>
+
+    <div class="museum-entrance-content">
+
+        <p class="museum-room-number">추억 저장소</p>
+
+        <h1 class="museum-entrance-title">시간의 길</h1>
+
+        <p class="museum-entrance-description">
+            1960년대부터 2000년대까지,<br>
+            우리의 일상에 함께했던 물건들을 만나보세요.
+        </p>
+
+        <a href="/archive/1960" class="museum-enter-button">
+            입장하기 〉
+        </a>
+
+        <a href="#museum-guide" class="museum-guide-link">
+            관람 안내도
+        </a>
+
+    </div>
+
+    <div id="museum-guide" class="museum-guide">
+
+        <h2>관람 안내도</h2>
+
+        <div class="museum-guide-rooms">
+
+            <% [1960, 1970, 1980, 1990, 2000].forEach((year, index) => { %>
+
+                <a href="/archive/<%= year %>">
+                    <span>제<%= index + 1 %>전시실</span>
+                    <strong><%= year %>년대</strong>
+                </a>
+
+            <% }); %>
+
+        </div>
+
+    </div>
+
+</section>
+
+<%- include('partials/foot') %>

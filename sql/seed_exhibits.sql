@@ -3,7 +3,7 @@ USE memory_museum;
 START TRANSACTION;
 INSERT INTO items (era_id,type,title,description,image_path) SELECT 1960,'official','양푼','주방 문화
 
-가볍고 다루기 편한 양푼은 채소를 씻고 김치를 버무리는 등 부엌의 여러 일을 함께한 생활용품입니다.
+알루미늄을 소재로 제작한 도시락통으로, 1960~1980년대 학생과 직장인들이 주로 사용하였다. 밥과 김치, 달걀, 소시지 등의 반찬을 담았으며, 겨울철에는 교실 난로 위에 도시락을 쌓아 데워 먹기도 하였다. 가볍고 휴대하기 편리하여 학교 급식이 보편화되기 이전에 널리 사용되었습니다'
 
 오래 사용한 그릇의 흠집과 찌그러진 자국은 가족의 식사를 준비하던 일상의 흔적을 떠올리게 합니다.','/images/exhibits/1960/basin.jpg' WHERE NOT EXISTS (SELECT 1 FROM items WHERE type='official' AND image_path='/images/exhibits/1960/basin.jpg');
 INSERT INTO items (era_id,type,title,description,image_path) SELECT 1960,'official','석유곤로','취사 문화

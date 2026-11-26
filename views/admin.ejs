@@ -1,24 +1,310 @@
-<%- include('partials/head',{title:'관리자 대시보드'}) %>
-    <section class="content form-wrap">
-        <h1>관리자 대시보드</h1>
-        <form method="post" action="/admin/logout"><button class="small-btn">로그아웃</button></form>
-        <h2>공식 전시품 등록</h2>
-        <form class="form" action="/admin/items" method="post" enctype="multipart/form-data"><label>이름<input
-                    name="title" required></label><label>시대<select name="era">
-                    <% eras.forEach(e=>{ %><option value="<%= e.id %>">
-                            <%= e.label %>
-                        </option>
-                        <% }) %>
-                </select></label><label>사진<input type="file" name="image"
-                    accept="image/jpeg,image/png,image/webp"></label><label>설명<textarea name="description"
-                    required></textarea></label><button class="btn primary">공식 전시품 추가</button></form>
-        <h2>신고 누적 숨김 전시품</h2>
-        <% hidden.forEach(item=>{ %><form method="post" action="/admin/restore/<%= item.id %>" class="inline-form">
-                <span>
-                    <%= item.title %>
-                </span><button class="small-btn">복구</button></form>
-            <% }) %>
-                <% if(!hidden.length){ %>
-                    <p>숨김 처리된 전시품이 없습니다.</p>
+<%- include('partials/head', {title: '관리자 대시보드'}) %>
+
+<section class="content form-wrap">
+
+    <h1>관리자 대시보드</h1>
+
+    <form method="post" action="/admin/logout">
+        <button class="small-btn">로그아웃</button>
+    </form>
+
+    <!-- 신고 관리 통계 -->
+
+    <div class="admin-stat-grid">
+
+        <div class="admin-stat-card">
+            <span>신고된 게시글</span>
+            <strong><%= reportedItems.length %></strong>
+        </div>
+
+        <div class="admin-stat-card">
+            <span>신고된 댓글</span>
+            <strong><%= reportedComments.length %></strong>
+        </div>
+
+        <div class="admin-stat-card">
+            <span>숨김 게시글</span>
+            <strong>
+                <%= reportedItems.filter(i => i.status === 'hidden').length %>
+            </strong>
+        </div>
+
+        <div class="admin-stat-card">
+            <span>숨김 댓글</span>
+            <strong>
+                <%= reportedComments.filter(i => i.status === 'hidden').length %>
+            </strong>
+        </div>
+
+    </div>
+
+    <!-- 신고 관리 -->
+
+    <h2>신고 관리</h2>
+
+    <p class="admin-help">
+        신고가 5회 누적되면 자동으로 숨김 처리됩니다.
+        관리자는 신고 내용을 확인하고 복구하거나 삭제할 수 있습니다.
+    </p>
+
+    <% for (const [kind, label, rows] of [
+        ['item', '게시글', reportedItems],
+        ['comment', '댓글', reportedComments]
+    ]) { %>
+
+        <h3>신고된 <%= label %></h3>
+
+        <% if (!rows.length) { %>
+
+            <div class="report-empty">
+                신고된 <%= label %>이 없습니다.
+            </div>
+
+        <% } %>
+
+        <% rows.forEach(row => { %>
+
+            <article class="report-card">
+
+                <div class="report-header">
+
+                    <strong>
+                        <%= kind === 'item'
+                            ? row.title
+                            : row.item_title %>
+                    </strong>
+
+                    <span class="report-count">
+                        신고 <%= row.count %>회
+                    </span>
+
+                    <% if (row.status === 'hidden') { %>
+
+                        <span class="report-status-hidden">
+                            숨김 상태
+                        </span>
+
+                    <% } else { %>
+
+                        <span class="report-status-active">
+                            공개 중
+                        </span>
+
                     <% } %>
-    <h2>전체 전시품 및 게시글</h2><% allItems.forEach(i=>{ %><form class="inline-form" method="post" action="/admin/delete/item/<%= i.id %>"><span><%= i.title %></span><button class="small-btn">삭제</button></form><% }) %><h2>추억 찾기 게시글</h2><% wanted.forEach(i=>{ %><form class="inline-form" method="post" action="/admin/delete/wanted/<%= i.id %>"><span><%= i.title %></span><button class="small-btn">삭제</button></form><% }) %></section><%- include('partials/foot') %>
+
+                </div>
+
+                <!-- 신고된 내용 -->
+
+                <div class="report-body">
+
+                    <p>
+                        <%= kind === 'item'
+                            ? row.description
+                            : row.body %>
+                    </p>
+
+                </div>
+
+                <!-- 신고 사유 -->
+
+                <div class="report-reasons">
+
+                    <strong>신고 사유</strong>
+
+                    <p>
+                        <%= row.reasons.map(
+                            r => r.reason + ' ' + r.n + '건'
+                        ).join(' · ') || '신고 기록 없음' %>
+                    </p>
+
+                </div>
+
+                <!-- 관리자 처리 버튼 -->
+
+                <div class="report-actions">
+
+                    <form
+                        method="post"
+                        action="/admin/restore/<%= kind %>/<%= row.id %>"
+                        onsubmit="return confirm('신고 기록을 초기화하고 공개 상태로 변경하시겠습니까?')"
+                    >
+
+                        <button class="small-btn report-restore-btn">
+
+                            <%= row.status === 'hidden'
+                                ? '복구'
+                                : '신고 해제' %>
+
+                        </button>
+
+                    </form>
+
+                    <form
+                        method="post"
+                        action="/admin/delete/<%= kind %>/<%= row.id %>"
+                        onsubmit="return confirm('삭제하시겠습니까?')"
+                    >
+
+                        <button class="small-btn report-delete-btn">
+                            삭제
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </article>
+
+        <% }) %>
+
+    <% } %>
+
+    <!-- 공식 전시품 등록 -->
+
+    <h2>공식 전시품 등록</h2>
+
+    <form
+        class="form"
+        action="/admin/items"
+        method="post"
+        enctype="multipart/form-data"
+    >
+
+        <label>
+            이름
+            <input name="title" required>
+        </label>
+
+        <label>
+
+            시대
+
+            <select name="era">
+
+                <% eras.forEach(e => { %>
+
+                    <option value="<%= e.id %>">
+                        <%= e.label %>
+                    </option>
+
+                <% }) %>
+
+            </select>
+
+        </label>
+
+        <label>
+
+            사진
+
+            <input
+                type="file"
+                name="image"
+                accept="image/jpeg,image/png,image/webp"
+            >
+
+        </label>
+
+        <label>
+
+            설명
+
+            <textarea
+                name="description"
+                required
+            ></textarea>
+
+        </label>
+
+        <button class="btn primary">
+            공식 전시품 추가
+        </button>
+
+    </form>
+
+    <!-- 전체 게시글 관리 -->
+
+    <h2>전체 전시품 및 게시글</h2>
+
+    <% if (!allItems.length) { %>
+
+        <p>등록된 게시글이 없습니다.</p>
+
+    <% } %>
+
+    <% allItems.forEach(i => { %>
+
+        <form
+            class="inline-form"
+            method="post"
+            action="/admin/delete/item/<%= i.id %>"
+            onsubmit="return confirm('해당 게시글을 삭제하시겠습니까?')"
+        >
+
+            <span>
+
+                <% if (i.type === 'official') { %>
+
+                    [공식 전시품]
+
+                <% } else { %>
+
+                    [시민 게시글]
+
+                <% } %>
+
+                <%= i.title %>
+
+                <% if (i.status === 'hidden') { %>
+
+                    <span class="report-status-hidden">
+                        숨김
+                    </span>
+
+                <% } %>
+
+            </span>
+
+            <button class="small-btn">
+                삭제
+            </button>
+
+        </form>
+
+    <% }) %>
+
+    <!-- 추억 찾기 관리 -->
+
+    <h2>추억 찾기 게시글</h2>
+
+    <% if (!wanted.length) { %>
+
+        <p>등록된 게시글이 없습니다.</p>
+
+    <% } %>
+
+    <% wanted.forEach(i => { %>
+
+        <form
+            class="inline-form"
+            method="post"
+            action="/admin/delete/wanted/<%= i.id %>"
+            onsubmit="return confirm('해당 게시글을 삭제하시겠습니까?')"
+        >
+
+            <span>
+                <%= i.title %>
+            </span>
+
+            <button class="small-btn">
+                삭제
+            </button>
+
+        </form>
+
+    <% }) %>
+
+</section>
+
+<%- include('partials/foot') %>

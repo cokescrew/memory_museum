@@ -1,3 +1,158 @@
-<%- include('partials/head',{title:title}) %>
-<% const themes={1960:['소박했던 일상의 기억','우리 곁을 지켰던 생활용품을 만나봅니다.'],1970:['변화하는 가정의 풍경','새로운 물건들이 가정의 일상을 바꾸기 시작했습니다.'],1980:['즐거움이 늘어난 일상','여가와 기록의 문화가 자리 잡던 시절입니다.'],1990:['디지털 시대의 시작','새로운 통신기기가 사람과 세상을 연결했습니다.'],2000:['손안으로 들어온 세상','통신과 학습, 음악이 일상 속으로 들어왔습니다.']}; %>
-<section class="content museum-exhibition"><a class="text-link" href="/archive">← 추억 저장소</a><div class="museum-heading"><div class="eyebrow">PERMANENT COLLECTION · <%= era.id %></div><h1><%= themes[era.id][0] %></h1><p><%= era.label %> · <%= themes[era.id][1] %></p></div><div class="museum-grid"><% items.forEach((item,i)=>{ %><a class="museum-object" href="/items/<%= item.id %>"><figure><img src="<%= item.image_path || era.image %>" alt="<%= item.title %>"></figure><div class="museum-label"><small>EXHIBIT <%= String(i+1).padStart(2,'0') %></small><h2><%= item.title %></h2><p><%= item.description.split('\n\n')[1] || item.description %></p><span>전시품 자세히 보기 →</span></div></a><% }) %></div><% if(!items.length){ %><p>아직 등록된 전시품이 없습니다.</p><% } %></section><%- include('partials/foot') %>
+<%- include('partials/head', { title: era.label }) %>
+
+<%
+/* =========================================
+   시대별 전시실 정보
+========================================= */
+
+const roomInfo = {
+    1960: {
+        number: 1,
+        subtitle: '소박했던 일상',
+        image: '/images/gallery-1960.png'
+    },
+    1970: {
+        number: 2,
+        subtitle: '변화하는 생활',
+        image: '/images/gallery-1970.png'
+    },
+    1980: {
+        number: 3,
+        subtitle: '문화와 여가의 시대',
+        image: '/images/gallery-1980.png'
+    },
+    1990: {
+        number: 4,
+        subtitle: '아날로그와 디지털의 공존',
+        image: '/images/gallery-1990.png'
+    },
+    2000: {
+        number: 5,
+        subtitle: '새로운 시대의 시작',
+        image: '/images/gallery-2000.png'
+    }
+};
+
+// 현재 관람 중인 시대
+const year = Number(era.id);
+
+// 전체 전시실 관람 순서
+const years = [1960, 1970, 1980, 1990, 2000];
+
+// 현재 전시실 정보
+const room = roomInfo[year];
+
+// 현재 전시실 위치
+const index = years.indexOf(year);
+%>
+
+<section class="museum-gallery">
+
+    <!-- 전시실 상단 -->
+    <div class="museum-gallery-header">
+
+        <span>추억 박물관</span>
+
+        <a href="/archive">
+            ▧ 관람 안내도
+        </a>
+
+    </div>
+
+
+    <!-- 시대별 전시실 사진 -->
+    <div class="museum-gallery-photo">
+
+        <img
+            src="<%= room.image %>"
+            alt="<%= year %>년대 전시실"
+        >
+
+    </div>
+
+
+    <!-- 전시실 하단 콘텐츠 -->
+    <div class="museum-gallery-content">
+
+        <!-- 현재 관람 위치 -->
+        <p class="museum-room-number">
+
+            제<%= room.number %>전시실
+            ·
+            <%= room.number %> / <%= years.length %>
+
+        </p>
+
+
+        <!-- 전시실 제목 -->
+        <h1 class="museum-room-title">
+
+            <%= year %>년대 — <%= room.subtitle %>
+
+        </h1>
+
+
+        <!-- DB에 등록된 전시품 버튼 -->
+        <div class="museum-exhibit-buttons">
+
+            <% items.forEach(item => { %>
+
+                <a
+                    href="/items/<%= item.id %>"
+                    class="museum-exhibit-button"
+                >
+
+                    <%= item.title %>
+
+                </a>
+
+            <% }); %>
+
+        </div>
+
+
+        <!-- 이전 및 다음 전시실 이동 -->
+        <div class="museum-gallery-navigation">
+
+            <!-- 이전 전시실 -->
+            <% if (index === 0) { %>
+
+                <a href="/archive">
+                    〈 박물관 입구
+                </a>
+
+            <% } else { %>
+
+                <a href="/archive/<%= years[index - 1] %>">
+
+                    〈 <%= years[index - 1] %>년대 전시실
+
+                </a>
+
+            <% } %>
+
+
+            <!-- 다음 전시실 -->
+            <% if (index < years.length - 1) { %>
+
+                <a href="/archive/<%= years[index + 1] %>">
+
+                    <%= years[index + 1] %>년대 전시실 〉
+
+                </a>
+
+            <% } else { %>
+
+                <a href="/citizen">
+                    모두의 추억 〉
+                </a>
+
+            <% } %>
+
+        </div>
+
+    </div>
+
+</section>
+
+<%- include('partials/foot') %>
