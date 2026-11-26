@@ -1223,3 +1223,333 @@ html {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
+/* ======================================
+   V1.3 게시글 및 댓글 관리 디자인
+====================================== */
+
+
+/* 상세 페이지 상단 */
+
+.detail-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 24px;
+}
+
+
+/* 작은 수정 / 삭제 / 신고 버튼 */
+
+.mini-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.mini-actions form {
+    display: inline-flex;
+    margin: 0;
+    padding: 0;
+}
+
+.mini-actions button {
+    width: auto;
+    min-height: 0;
+    padding: 2px 0;
+    margin: 0;
+
+    background: transparent;
+    border: none;
+    border-radius: 0;
+
+    color: #aa9279;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: normal;
+
+    cursor: pointer;
+}
+
+.mini-actions button:hover {
+    color: #f0ddc4;
+    text-decoration: underline;
+}
+
+
+/* 댓글 작성 영역 */
+
+.compact-comments {
+    margin-top: 42px;
+}
+
+.compact-comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.compact-comment-form label {
+    font-size: 13px;
+    color: #e4c9a9;
+}
+
+.compact-comment-form textarea {
+    width: 100%;
+    min-height: 76px;
+    padding: 12px;
+
+    box-sizing: border-box;
+
+    background: #30251b;
+    color: #f0e3d2;
+
+    border: 1px solid #80654c;
+    border-radius: 4px;
+
+    font-family: inherit;
+    font-size: 13px;
+
+    resize: vertical;
+}
+
+
+/* 비밀번호와 등록 버튼 */
+
+.compact-comment-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.compact-comment-footer input {
+    width: 120px;
+    min-width: 0;
+    height: 30px;
+
+    padding: 5px 8px;
+    box-sizing: border-box;
+
+    background: #30251b;
+    color: #eadbc5;
+
+    border: 1px solid #80654c;
+    border-radius: 3px;
+
+    font-family: inherit;
+    font-size: 12px;
+}
+
+.compact-comment-footer button {
+    width: auto;
+    height: 30px;
+    padding: 0 15px;
+
+    background: #9e754d;
+    color: #fff;
+
+    border: 1px solid #b38a61;
+    border-radius: 3px;
+
+    font-family: inherit;
+    font-size: 12px;
+
+    cursor: pointer;
+}
+
+.compact-comment-footer button:hover {
+    background: #b0865d;
+}
+
+
+/* 등록된 댓글 */
+
+.compact-comment-list {
+    margin-top: 22px;
+}
+
+.compact-comment {
+    padding: 16px 0;
+    border-bottom: 1px solid #48382a;
+}
+
+.compact-comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.compact-comment-header small {
+    color: #aa9279;
+    font-size: 12px;
+}
+
+.compact-comment-body {
+    margin: 12px 0 0;
+
+    color: #e9dac7;
+    font-size: 14px;
+    line-height: 1.7;
+
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+
+/* 비밀번호 확인 팝업 */
+
+.post-action-dialog {
+    width: min(380px, calc(100% - 32px));
+    max-height: 85vh;
+
+    box-sizing: border-box;
+
+    margin: auto;
+    padding: 24px;
+
+    background: #241b14;
+    color: #eadbc5;
+
+    border: 1px solid #80654c;
+    border-radius: 5px;
+
+    font-family: inherit;
+}
+
+.post-action-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.action-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 20px;
+}
+
+.action-dialog-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: normal;
+}
+
+.action-dialog-header button {
+    padding: 0 4px;
+
+    background: transparent;
+    color: #c4ae95;
+
+    border: none;
+
+    font-size: 24px;
+    cursor: pointer;
+}
+
+#action-dialog-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+#action-dialog-fields label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    font-size: 13px;
+}
+
+#action-dialog-fields input,
+#action-dialog-fields textarea,
+#action-dialog-fields select {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 10px;
+
+    background: #30251b;
+    color: #eadbc5;
+
+    border: 1px solid #80654c;
+    border-radius: 3px;
+
+    font-family: inherit;
+    font-size: 13px;
+}
+
+#action-dialog-fields textarea {
+    resize: vertical;
+}
+
+.action-dialog-error {
+    color: #e6a294;
+    font-size: 12px;
+}
+
+.action-dialog-error:empty {
+    display: none;
+}
+
+.action-dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+
+    margin-top: 20px;
+}
+
+.action-dialog-footer button {
+    padding: 8px 15px;
+
+    border: 1px solid #80654c;
+    border-radius: 3px;
+
+    font-family: inherit;
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.action-cancel {
+    background: transparent;
+    color: #c7b39b;
+}
+
+.action-confirm {
+    background: #9e754d;
+    color: #fff;
+}
+
+.action-confirm:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+
+
+/* 모바일 대응 */
+
+@media (max-width: 600px) {
+
+    .mini-actions {
+        gap: 8px;
+    }
+
+    .compact-comment-header {
+        flex-wrap: wrap;
+    }
+
+    .compact-comment-footer input {
+        width: 110px;
+    }
+
+    .post-action-dialog {
+        padding: 18px;
+    }
+
+}

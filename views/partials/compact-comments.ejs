@@ -1,0 +1,160 @@
+<section class="comments compact-comments">
+
+    <h2>
+        <%= heading %>
+        <span><%= comments.length %></span>
+    </h2>
+
+    <form
+        class="compact-comment-form"
+        method="post"
+        action="<%= board === 'item'
+            ? '/items/' + parentId + '/comments'
+            : '/find/' + parentId + '/comments' %>">
+
+        <label for="comment-body">
+            익명 댓글
+        </label>
+
+        <textarea
+            id="comment-body"
+            name="body"
+            rows="3"
+            maxlength="1000"
+            placeholder="<%= placeholder %>"
+            required></textarea>
+
+        <div class="compact-comment-footer">
+
+            <input
+                type="password"
+                name="password"
+                placeholder="비밀번호"
+                aria-label="댓글 관리용 비밀번호"
+                minlength="4"
+                maxlength="72"
+                autocomplete="new-password"
+                required>
+
+            <button type="submit">
+                등록
+            </button>
+
+        </div>
+
+    </form>
+
+    <div class="compact-comment-list">
+
+        <% comments.forEach(c => { %>
+
+            <article class="compact-comment">
+
+                <div class="compact-comment-header">
+
+                    <small>
+                        익명 ·
+                        <%= new Date(c.created_at).toLocaleDateString('ko-KR') %>
+                    </small>
+
+                    <div class="mini-actions">
+
+                        <button type="button"
+                            data-edit-url="<%= board === 'item'
+                                ? '/comments/' + c.id + '/edit'
+                                : '/find/comments/' + c.id + '/edit' %>"
+                            data-edit-kind="comment">
+                            수정
+                        </button>
+
+                        <button type="button"
+                            data-delete-url="<%= board === 'item'
+                                ? '/comments/' + c.id + '/delete'
+                                : '/find/comments/' + c.id + '/delete' %>">
+                            삭제
+                        </button>
+
+                        <% if (board === 'item') { %>
+
+                            <button type="button"
+                                data-report-type="comment"
+                                data-report-id="<%= c.id %>">
+                                신고
+                            </button>
+
+                        <% } %>
+
+                        <% if (admin) { %>
+
+                            <form method="post"
+                                action="/admin/delete/<%= board === 'item' ? 'comment' : 'wantedComment' %>/<%= c.id %>"
+                                onsubmit="return confirm('댓글을 삭제할까요?')">
+
+                                <button type="submit">
+                                    관리자 삭제
+                                </button>
+
+                            </form>
+
+                        <% } %>
+
+                    </div>
+
+                </div>
+
+                <p class="compact-comment-body"><%= c.body %></p>
+
+            </article>
+
+        <% }) %>
+
+    </div>
+
+</section>
+
+
+<!-- 수정 / 삭제 / 신고 공통 팝업 -->
+
+<dialog id="post-action-dialog" class="post-action-dialog">
+
+    <div class="action-dialog-header">
+
+        <h3 id="action-dialog-title">
+            비밀번호 확인
+        </h3>
+
+        <button type="button"
+            id="action-dialog-close"
+            aria-label="닫기">
+            ×
+        </button>
+
+    </div>
+
+    <form id="action-dialog-form">
+
+        <div id="action-dialog-fields"></div>
+
+        <p id="action-dialog-error"
+           class="action-dialog-error"
+           role="alert"></p>
+
+        <div class="action-dialog-footer">
+
+            <button type="button"
+                id="action-dialog-cancel"
+                class="action-cancel">
+                취소
+            </button>
+
+            <button type="submit"
+                id="action-dialog-submit"
+                class="action-confirm">
+                확인
+            </button>
+
+        </div>
+
+    </form>
+
+</dialog>

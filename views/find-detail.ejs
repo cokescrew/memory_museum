@@ -1,1 +1,58 @@
-<%- include('partials/head',{title:'추억 찾기'}) %><section class="content"><h1><%= post.title %></h1><p class="description"><%= post.description %></p><a href="/find" class="btn">목록</a><details><summary>글 수정 / 삭제</summary><form class="form" method="post" action="/find/<%= post.id %>/edit"><input name="title" value="<%= post.title %>" required><textarea name="description" required><%= post.description %></textarea><input type="password" name="password" placeholder="비밀번호" required><button class="btn">수정</button><button class="btn" formaction="/find/<%= post.id %>/delete">삭제</button></form></details><h2>댓글</h2><form class="form" method="post" action="/find/<%= post.id %>/comments"><textarea name="body" required></textarea><input type="password" name="password" minlength="4" placeholder="비밀번호" required><button class="btn">댓글 등록</button></form><% comments.forEach(c=>{ %><article class="comment"><small>익명</small><p><%= c.body %></p><form class="inline-form" method="post" action="/find/comments/<%= c.id %>/delete"><input type="password" name="password" placeholder="비밀번호" required><button class="small-btn">삭제</button></form><% if(admin){ %><form method="post" action="/admin/delete/wantedComment/<%= c.id %>"><button class="small-btn">관리자 삭제</button></form><% } %></article><% }) %></section><%- include('partials/foot') %>
+<%- include('partials/head', {title: post.title}) %>
+
+<section class="content detail find-board">
+
+    <div class="detail-topbar">
+
+        <a class="text-link" href="/find">
+            ← 추억 찾기로
+        </a>
+
+        <div class="mini-actions">
+
+            <button type="button"
+                data-edit-url="/find/<%= post.id %>/edit"
+                data-edit-kind="wanted">
+                수정
+            </button>
+
+            <button type="button"
+                data-delete-url="/find/<%= post.id %>/delete">
+                삭제
+            </button>
+
+            <% if (admin) { %>
+
+                <form method="post"
+                    action="/admin/delete/wanted/<%= post.id %>"
+                    onsubmit="return confirm('게시글을 삭제할까요?')">
+
+                    <button type="submit">
+                        관리자 삭제
+                    </button>
+
+                </form>
+
+            <% } %>
+
+        </div>
+
+    </div>
+
+    <h1><%= post.title %></h1>
+
+    <p class="description"><%= post.description %></p>
+
+    <%- include('partials/compact-comments', {
+        comments: comments,
+        parentId: post.id,
+        board: 'find',
+        heading: '물건에 대한 제보',
+        placeholder: '이 물건에 대해 알고 있는 정보를 남겨주세요.'
+    }) %>
+
+</section>
+
+<script src="/js/post-actions.js"></script>
+
+<%- include('partials/foot') %>

@@ -23,6 +23,10 @@ app.use(express.urlencoded({
     limit: '30kb'
 }));
 
+app.use(express.json({
+    limit: '30kb'
+}));
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 세션 설정
@@ -1216,7 +1220,291 @@ app.post(
 // ========================================
 // 서버 오류 처리
 // ========================================
+// ======================================
+// V1.3 게시글 및 댓글 수정 기능
+// ======================================
 
+
+// 수정 대상별 테이블 및 조회 조건
+
+const editTargets = {
+
+    item: {
+        table: 'items',
+        condition: "type='citizen' AND status='active'",
+        fields: 'title, description, era_id'
+    },
+
+    wanted: {
+        table: 'wanted_posts',
+        condition: "status='active'",
+        fields: 'title, description'
+    },
+
+    comment: {
+        table: 'comments',
+        condition: "status='active'",
+        fields: 'body'
+    },
+
+    wantedComment: {
+        table: 'wanted_comments',
+        condition: "status='active'",
+        fields: 'body'
+    }
+
+};
+
+
+// 수정 전 비밀번호 인증
+
+function verifyEditPassword(kind) {
+
+    return asyncRoute(async (req, res) => {
+
+        const target = editTargets[kind];
+
+        const id = Number(req.params.id);
+        const password = req.body.password;
+
+        if (
+            !Number.isSafeInteger(id) ||
+            id < 1 ||
+            !validPass(password)
+        ) {
+
+            return res.status(400).json({
+                message: '비밀번호를 확인해주세요.'
+            });
+
+        }
+
+        const [rows] = await db.query(
+
+            `SELECT ${target.fields}, password_hash
+             FROM ${target.table}
+             WHERE id=? AND ${target.condition}`,
+
+            [id]
+
+        );
+
+        if (!rows.length) {
+
+            return res.status(404).json({
+                message: '수정할 수 없는 게시글입니다.'
+            });
+
+        }
+
+        const row = rows[0];
+
+        const matched = await bcrypt.compare(
+            password,
+            row.password_hash || ''
+        );
+
+        if (!matched) {
+
+            return res.status(403).json({
+                message: '비밀번호가 일치하지 않습니다.'
+            });
+
+        }
+
+        // 비밀번호 해시는 브라우저에 전달하지 않음
+
+        const { password_hash, ...result } = row;
+
+        return res.json(result);
+
+    });
+
+}
+
+
+// 시민 전시품 수정 전 인증
+
+app.post(
+    '/items/:id/edit/verify',
+    limiter,
+    verifyEditPassword('item')
+);
+
+
+// 추억 찾기 게시글 수정 전 인증
+
+app.post(
+    '/find/:id/edit/verify',
+    limiter,
+    verifyEditPassword('wanted')
+);
+
+
+// 일반 전시품 댓글 수정 전 인증
+
+app.post(
+    '/comments/:id/edit/verify',
+    limiter,
+    verifyEditPassword('comment')
+);
+
+
+// 추억 찾기 댓글 수정 전 인증
+
+app.post(
+    '/find/comments/:id/edit/verify',
+    limiter,
+    verifyEditPassword('wantedComment')
+);
+
+
+// 공식 및 시민 전시품 댓글 수정
+
+app.post(
+    '/comments/:id/edit',
+    limiter,
+    asyncRoute(async (req, res) => {
+
+        const id = Number(req.params.id);
+        const password = req.body.password;
+        const body = clean(req.body.body, 1000);
+
+        if (
+            !Number.isSafeInteger(id) ||
+            id < 1 ||
+            !body ||
+            !validPass(password)
+        ) {
+
+            return res.status(400).send(
+                '입력 내용을 확인해주세요.'
+            );
+
+        }
+
+        const [rows] = await db.query(
+
+            `SELECT c.id, c.item_id, c.password_hash
+             FROM comments c
+             JOIN items i ON i.id = c.item_id
+             WHERE c.id=?
+             AND c.status='active'
+             AND i.status='active'`,
+
+            [id]
+
+        );
+
+        if (!rows.length) {
+
+            return res.status(404).send(
+                '댓글을 찾을 수 없습니다.'
+            );
+
+        }
+
+        const comment = rows[0];
+
+        if (!await bcrypt.compare(
+            password,
+            comment.password_hash
+        )) {
+
+            return res.status(403).send(
+                '비밀번호가 다릅니다.'
+            );
+
+        }
+
+        await db.query(
+
+            `UPDATE comments
+             SET body=?
+             WHERE id=? AND status='active'`,
+
+            [body, id]
+
+        );
+
+        res.redirect('/items/' + comment.item_id);
+
+    })
+);
+
+
+// 추억 찾기 댓글 수정
+
+app.post(
+    '/find/comments/:id/edit',
+    limiter,
+    asyncRoute(async (req, res) => {
+
+        const id = Number(req.params.id);
+        const password = req.body.password;
+        const body = clean(req.body.body, 1000);
+
+        if (
+            !Number.isSafeInteger(id) ||
+            id < 1 ||
+            !body ||
+            !validPass(password)
+        ) {
+
+            return res.status(400).send(
+                '입력 내용을 확인해주세요.'
+            );
+
+        }
+
+        const [rows] = await db.query(
+
+            `SELECT c.id, c.post_id, c.password_hash
+             FROM wanted_comments c
+             JOIN wanted_posts p ON p.id = c.post_id
+             WHERE c.id=?
+             AND c.status='active'
+             AND p.status='active'`,
+
+            [id]
+
+        );
+
+        if (!rows.length) {
+
+            return res.status(404).send(
+                '댓글을 찾을 수 없습니다.'
+            );
+
+        }
+
+        const comment = rows[0];
+
+        if (!await bcrypt.compare(
+            password,
+            comment.password_hash
+        )) {
+
+            return res.status(403).send(
+                '비밀번호가 다릅니다.'
+            );
+
+        }
+
+        await db.query(
+
+            `UPDATE wanted_comments
+             SET body=?
+             WHERE id=? AND status='active'`,
+
+            [body, id]
+
+        );
+
+        res.redirect('/find/' + comment.post_id);
+
+    })
+);
 app.use((err, req, res, next) => {
 
     console.error(err);
